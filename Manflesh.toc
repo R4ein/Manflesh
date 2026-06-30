@@ -7,9 +7,23 @@
 ## SavedVariablesPerCharacter: ManfleshUIDB
 
 JSON.lua
+Constants.lua
 Data.lua
+Roles.lua
+Classes\Warrior.lua
+Classes\Paladin.lua
+Classes\Hunter.lua
+Classes\Rogue.lua
+Classes\Priest.lua
+Classes\Shaman.lua
+Classes\Mage.lua
+Classes\Warlock.lua
+Classes\Druid.lua
+Raids\SSC.lua
+Raids\TK.lua
 Core.lua
 Comm.lua
+RaidHelper.lua
 Export.lua
 UI.lua
 Zone.lua

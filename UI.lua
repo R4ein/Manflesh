@@ -3,17 +3,18 @@ ns.UI = ns.UI or {}
 local UI = ns.UI
 local Core = ns.Core
 
-local ROW_HEIGHT = 20
-local ROW_HIGHLIGHT = "Interface\\QuestFrame\\UI-QuestTitleHighlight"
+local ROW_HIGHLIGHT = ns.TEX_ROW_HIGHLIGHT
 
--- 25-man grid geometry (5 groups of 5 in a 2-column layout)
-local BOX_W, BOX_GAP = 212, 14
-local PLAYER_H = 18
-local HEADER_H = 18
-local BOX_PAD = 6
-local BOX_H = HEADER_H + 5 * PLAYER_H + BOX_PAD
-local VGAP = 8
-local GRID_H = 3 * BOX_H + 2 * VGAP
+-- 25-man grid geometry (defined in Constants.lua)
+local S = ns.UI_SIZES
+local ROW_HEIGHT = S.ROW_HEIGHT
+local BOX_W, BOX_GAP = S.BOX_W, S.BOX_GAP
+local PLAYER_H = S.PLAYER_H
+local HEADER_H = S.HEADER_H
+local BOX_PAD = S.BOX_PAD
+local BOX_H = S.BOX_H
+local VGAP = S.VGAP
+local GRID_H = S.GRID_H
 
 local function SetRowHighlight(row, enabled)
     row:SetHighlightTexture(ROW_HIGHLIGHT, "ADD")
