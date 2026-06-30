@@ -189,10 +189,15 @@ Raids/bosses:
 |------|---------|
 | `Manflesh.toc` | Addon manifest (Interface `20505`, load order, SavedVariables) |
 | `JSON.lua` | Dependency-free JSON decoder **and** encoder (Lua 5.1) |
-| `Data.lua` | Classes, roles, marks, raids/bosses, assignment definitions, RH mappings |
-| `Core.lua` | SavedVariables, multi-roster model, import/parse, permissions, mutators |
+| `Constants.lua` | Shared constants: addon name/version, comm prefix, UI grid geometry, textures |
+| `Data.lua` | Class/raid registries (`RegisterClass`/`RegisterRaid`), class colors + spec icons |
+| `Roles.lua` | Roles, raid markers, role-based assignment definitions, `GetAssignmentTypes` |
+| `Classes\*.lua` | One file per class: display/color, specs + spec icons, DPS-only lock, Raid-Helper export emotes, class-specific assignments |
+| `Raids\*.lua` | One file per raid (SSC, TK): name + boss list |
+| `Core.lua` | SavedVariables, multi-roster model, permissions, mutators |
 | `Comm.lua` | Guild sync: throttled queue, chunked transfer, discovery, edit ops |
-| `Export.lua` | TSV builder for Sheets + Raid-Helper comp/raidplan JSON & curl (creator-gated) |
+| `RaidHelper.lua` | All Raid-Helper format logic: event-JSON import + comp/raidplan export (JSON & curl) |
+| `Export.lua` | TSV builder for Google Sheets (creator-gated) |
 | `UI.lua` | Main window, popups, player editor + assignment builder, sync prompts, encounter window |
 | `Zone.lua` | Zone watcher that pops the encounter window for supported raids |
 | `Manflesh.lua` | Init, events, addon-message routing, slash commands |

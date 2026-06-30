@@ -7,8 +7,6 @@ ns.Comm = ns.Comm or {}
 local Comm = ns.Comm
 local Core = ns.Core
 
-ns.PREFIX = "Manflesh"
-
 Comm.offers = {}
 Comm.pendingManual = {}   -- ids we explicitly asked for (auto-accept the offer)
 Comm.prompted = {}        -- ids already prompted about this session
