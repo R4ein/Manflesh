@@ -121,7 +121,7 @@ local BACKDROP = {
     insets = { left = 11, right = 12, top = 12, bottom = 11 },
 }
 
-local function CreatePanel(name, w, h, parent)
+local function CreatePanel(name, w, h, parent, noEsc)
     local f = CreateFrame("Frame", name, parent or UIParent, "BackdropTemplate")
     f:SetSize(w, h)
     f:SetBackdrop(BACKDROP)
@@ -134,6 +134,9 @@ local function CreatePanel(name, w, h, parent)
     f:SetFrameStrata("DIALOG")
     f:SetToplevel(true)
     f:Hide()
+    if name and not noEsc then
+        tinsert(UISpecialFrames, name)
+    end
     return f
 end
 
@@ -1325,7 +1328,7 @@ end
 
 local function CreateEncounterFrame()
     if encFrame then return end
-    encFrame = CreatePanel("ManfleshEncounterFrame", 300, 210)
+    encFrame = CreatePanel("ManfleshEncounterFrame", 300, 210, nil, true)
     encFrame:SetScript("OnDragStop", function(self)
         self:StopMovingOrSizing()
         SaveEncPos()
