@@ -30,4 +30,5 @@ RaidHelper.lua
 Export.lua
 UI.lua
 Zone.lua
+Options.lua
 Manflesh.lua

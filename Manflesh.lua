@@ -9,6 +9,7 @@ f:SetScript("OnEvent", function(self, event, arg1, arg2, arg3, arg4)
     if event == "ADDON_LOADED" then
         if arg1 == addonName then
             ns.InitDB()
+            ns.InitOptions()
             ns.Print("loaded. |cffffd100/mf|r to open.")
         end
     elseif event == "PLAYER_LOGIN" then
