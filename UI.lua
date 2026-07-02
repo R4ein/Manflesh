@@ -123,6 +123,7 @@ local function CreatePanel(name, w, h, parent)
     f:SetScript("OnDragStart", f.StartMoving)
     f:SetScript("OnDragStop", f.StopMovingOrSizing)
     f:SetFrameStrata("DIALOG")
+    f:SetToplevel(true)
     f:Hide()
     return f
 end
