@@ -18,7 +18,27 @@ ns.RegisterClass({
         ["Survival"]      = { "Survival", "637564202130866186" },
     },
     assignments = {
-        misdirection = { label = "Misdirection <player>", input = "target", build = function(d) return "Misdirection " .. d.target end },
+        misdirection_mark = {
+            label = "Misdirection <mark> -> <player>",
+            input = "mark_target",
+            build = function(d)
+                return "Misdirection {" .. ns.MarkDisplay(d.mark) .. "} -> " .. (d.target or "?")
+            end,
+        },
+        misdirection_boss = {
+            label = "Misdirection BOSS -> <player>",
+            input = "target",
+            build = function(d)
+                return "Misdirection BOSS -> " .. (d.target or "?")
+            end,
+        },
+        misdirection_text = {
+            label = "Misdirection <custom> -> <player>",
+            input = "text_target",
+            build = function(d)
+                return "Misdirection " .. (d.text or "?") .. " -> " .. (d.target or "?")
+            end,
+        },
     },
-    assignOrder = { "misdirection" },
+    assignOrder = { "misdirection_mark", "misdirection_boss", "misdirection_text" },
 })

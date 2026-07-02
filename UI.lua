@@ -16,6 +16,15 @@ local BOX_H = S.BOX_H
 local VGAP = S.VGAP
 local GRID_H = S.GRID_H
 
+-- Replace {MarkName} tokens in assignment display strings with raid-target icons.
+local function WithMarkIcons(text)
+    if not text then return "" end
+    for mark, display in pairs(ns.MARK_DISPLAY) do
+        text = text:gsub("{" .. display .. "}", ns.MarkIcon(mark, 12))
+    end
+    return text
+end
+
 local function SetRowHighlight(row, enabled)
     row:SetHighlightTexture(ROW_HIGHLIGHT, "ADD")
     local tex = row:GetHighlightTexture()
@@ -520,7 +529,7 @@ local function RefreshMain()
                     GameTooltip:AddLine(where, 1, .82, 0)
                     lastWhere = where
                 end
-                GameTooltip:AddLine("    " .. (a.display or ""), 1, 1, 1)
+                GameTooltip:AddLine("    " .. WithMarkIcons(a.display), 1, 1, 1)
             end
         end
         GameTooltip:Show()
@@ -558,7 +567,7 @@ local function RefreshMain()
     backupHeader:ClearAllPoints()
     backupHeader:SetPoint("TOPLEFT", 2, -areaTop)
     backupHeader:SetText(#backups > 0
-        and "|cffff8080Backup (position 26+)|r"
+        and "|cffff8080Bench|r"
         or "|cffff8080Backup|r  |cff888888(drag a player here to bench)|r")
     backupHeader:Show()
 
@@ -664,7 +673,7 @@ local function CreateMainFrame()
         groupBoxes[g] = BuildGroupBox(child, g)
     end
     backupHeader = child:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-    backupHeader:SetText("|cffff8080Backup (position 26+)|r")
+    backupHeader:SetText("|cffff8080Bench|r")
     backupHeader:Hide()
 
     backupZone = CreateFrame("Frame", nil, child, "BackdropTemplate")
@@ -932,6 +941,7 @@ local playerFrame, pNameText, pPermText
 local pClassDD, pSpecDD, pRoleDD, pRenameEdit, pRenameBtn, pEditorBtn
 local pAssignScroll
 local pRaidDD, pBossDD, pTypeDD, pMarkDD, pTargetDD, pTextEdit, pAddBtn
+local pTargetDD2, targetLabel2
 local addLabel, raidLabel, bossLabel, typeLabel, detailsLabel, renameLabel, specLabel
 local builderState = {}
 local editWidgets = {} -- shown only when the user can edit
@@ -973,7 +983,7 @@ local function RefreshAssignmentList()
 
         local where = (a.raid or "")
         if a.boss and a.boss ~= "" then where = where .. " / " .. a.boss end
-        row.text:SetText(("|cffffd100%s|r  %s"):format(where, a.display or ""))
+        row.text:SetText(("|cffffd100%s|r  %s"):format(where, WithMarkIcons(a.display)))
         row:Show()
     end
     for i = #list + 1, #rows do rows[i]:Hide() end
@@ -982,6 +992,7 @@ end
 
 local function UpdateDetailWidgets()
     pMarkDD:Hide() pTargetDD:Hide() pTextEdit:Hide() detailsLabel:Hide()
+    pTargetDD2:Hide() targetLabel2:Hide()
     local def = builderState.typeId and ns.ASSIGN_DEFS[builderState.typeId]
     if not def or not def.input then return end
     detailsLabel:Show()
@@ -998,6 +1009,22 @@ local function UpdateDetailWidgets()
     elseif def.input == "text" then
         pTextEdit:SetText(builderState.text or "")
         pTextEdit:Show()
+    elseif def.input == "mark_target" then
+        local marks = {}
+        for _, m in ipairs(ns.MARK_LIST) do marks[#marks + 1] = { value = m, text = ns.MarkMenuText(m) } end
+        SetDropdownItems(pMarkDD, marks, builderState.mark, "Pick marker", function(v) builderState.mark = v end)
+        pMarkDD:Show()
+        local players = {}
+        for _, nm in ipairs(ns.GetOtherPlayerNames(ctxRoster(), builderState.name)) do players[#players + 1] = { value = nm, text = nm } end
+        SetDropdownItems(pTargetDD2, players, builderState.target, "Pick player", function(v) builderState.target = v end)
+        pTargetDD2:Show() targetLabel2:Show()
+    elseif def.input == "text_target" then
+        pTextEdit:SetText(builderState.text or "")
+        pTextEdit:Show()
+        local players = {}
+        for _, nm in ipairs(ns.GetOtherPlayerNames(ctxRoster(), builderState.name)) do players[#players + 1] = { value = nm, text = nm } end
+        SetDropdownItems(pTargetDD2, players, builderState.target, "Pick player", function(v) builderState.target = v end)
+        pTargetDD2:Show() targetLabel2:Show()
     end
 end
 
@@ -1164,8 +1191,13 @@ local function CreatePlayerFrame()
     pTextEdit:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
     pTextEdit:SetScript("OnTextChanged", function(self) builderState.text = self:GetText() end)
 
+    -- Second target row — shown only for compound input types (mark_target / text_target)
+    targetLabel2 = AddLabel(playerFrame, "-> Player", 244, -432)
+    pTargetDD2 = MakeDropdown("ManfleshTargetDD2", playerFrame, 150)
+    pTargetDD2:SetPoint("TOPLEFT", 228, -444)
+
     pAddBtn = AddButton(playerFrame, "Add Assignment", 160)
-    pAddBtn:SetPoint("TOPLEFT", 30, -448)
+    pAddBtn:SetPoint("TOPLEFT", 30, -486)
     pAddBtn:SetScript("OnClick", function()
         local roster = ctxRoster()
         if not builderState.raid then ns.Print("|cffff5555Pick a raid.|r") return end
@@ -1350,7 +1382,7 @@ function UI.ShowEncounter(raidName, bossName)
     else
         for i, a in ipairs(mine) do
             local row = EncounterRow(i, child, width)
-            row.text:SetText("• " .. (a.display or ""))
+            row.text:SetText("• " .. WithMarkIcons(a.display))
             row:Show()
         end
         count = #mine

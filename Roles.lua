@@ -13,14 +13,14 @@ end
 -- ---------------------------------------------------------------------------
 -- Raid target markers
 -- ---------------------------------------------------------------------------
-ns.MARK_LIST = { "skull", "cross", "diamond", "triangle", "moon", "star" }
+ns.MARK_LIST = { "skull", "cross", "square", "diamond", "triangle", "circle", "moon", "star" }
 ns.MARK_DISPLAY = {
-    skull = "Skull", cross = "Cross", diamond = "Diamond",
-    triangle = "Triangle", moon = "Moon", star = "Star",
+    skull = "Skull", cross = "Cross", square = "Square", diamond = "Diamond",
+    triangle = "Triangle", circle = "Circle", moon = "Moon", star = "Star",
 }
 -- maps to RaidTargetingIcon_<n> (1 star 2 circle 3 diamond 4 triangle 5 moon 6 square 7 cross 8 skull)
 ns.MARK_ICON_INDEX = {
-    star = 1, diamond = 3, triangle = 4, moon = 5, cross = 7, skull = 8,
+    star = 1, circle = 2, diamond = 3, triangle = 4, moon = 5, square = 6, cross = 7, skull = 8,
 }
 
 function ns.MarkDisplay(mark)
@@ -43,8 +43,8 @@ end
 -- each def: label, optional input ("mark" | "text" | "target"), and build(d)
 -- ns.ASSIGN_DEFS is created by Data.lua and also filled by class registration.
 -- ---------------------------------------------------------------------------
-ns.ASSIGN_DEFS.dmg_mark       = { label = "Damage <mark>",     input = "mark", build = function(d) return "Damage {" .. ns.MarkDisplay(d.mark) .. "}" end }
-ns.ASSIGN_DEFS.dmg_boss       = { label = "Damage BOSS",       build = function() return "Damage BOSS" end }
+ns.ASSIGN_DEFS.dmg_mark       = { label = "Focus <mark>",      input = "mark", build = function(d) return "Focus {" .. ns.MarkDisplay(d.mark) .. "}" end }
+ns.ASSIGN_DEFS.dmg_boss       = { label = "Focus BOSS",        build = function() return "Focus BOSS" end }
 ns.ASSIGN_DEFS.interrupt_mark = { label = "Interrupt <mark>",  input = "mark", build = function(d) return "Interrupt {" .. ns.MarkDisplay(d.mark) .. "}" end }
 ns.ASSIGN_DEFS.interrupt_boss = { label = "Interrupt BOSS",    build = function() return "Interrupt BOSS" end }
 ns.ASSIGN_DEFS.aoe            = { label = "AOE",               build = function() return "AOE" end }
