@@ -16,4 +16,12 @@ ns.RegisterClass({
         ["Protection"]  = { "Protection1", "637564297647489034" },
         ["Retribution"] = { "Retribution", "637564297953673216" },
     },
+    assignments = {
+        turn_evil_mark = {
+            label = "Turn Evil <mark>",
+            input = "mark",
+            build = function(d) return "Turn Evil {" .. ns.MarkDisplay(d.mark) .. "}" end,
+        },
+    },
+    assignOrder = { "turn_evil_mark" },
 })

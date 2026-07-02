@@ -325,6 +325,12 @@ function ns.BuildAssignmentRecord(input)
         return nil, "Enter the custom text first."
     elseif def.input == "target" and not input.target then
         return nil, "Pick a target player first."
+    elseif def.input == "mark_target" then
+        if not input.mark then return nil, "Pick a marker first." end
+        if not input.target then return nil, "Pick a target player first." end
+    elseif def.input == "text_target" then
+        if not input.text or input.text:match("^%s*$") then return nil, "Enter the custom text first." end
+        if not input.target then return nil, "Pick a target player first." end
     end
 
     local record = {

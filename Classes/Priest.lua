@@ -16,4 +16,12 @@ ns.RegisterClass({
         ["Holy"]       = { "Holy", "637564323530539019" },
         ["Shadow"]     = { "Shadow", "637564323291725825" },
     },
+    assignments = {
+        shackle_mark = {
+            label = "Shackle <mark>",
+            input = "mark",
+            build = function(d) return "Shackle {" .. ns.MarkDisplay(d.mark) .. "}" end,
+        },
+    },
+    assignOrder = { "shackle_mark" },
 })
