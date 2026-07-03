@@ -3,12 +3,13 @@
 ## Notes: Import a Raid-Helper roster (JSON) and build per-player raid assignments for SSC & TK.
 ## Author: 
 ## Version: 0.1.0
-## SavedVariables: ManfleshDB
+## SavedVariables: ManfleshDB, ManfleshPreferences
 ## SavedVariablesPerCharacter: ManfleshUIDB
 
 JSON.lua
 Constants.lua
 Data.lua
+Preferences.lua
 Roles.lua
 Classes\Warrior.lua
 Classes\Paladin.lua

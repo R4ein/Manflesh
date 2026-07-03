@@ -2,7 +2,7 @@ local _, ns = ...
 
 ns.ADDON = "Manflesh"
 ns.VERSION = "0.1.0"
-ns.BUILD = "10"
+ns.BUILD = "12"
 
 -- addon-message channel prefix (also the SendAddonMessage / registered prefix)
 ns.PREFIX = "Manflesh"

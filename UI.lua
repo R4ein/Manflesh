@@ -153,11 +153,36 @@ local function AddCloseButton(frame)
     return b
 end
 
-local function AddButton(parent, text, w, h)
+function UI.AddButton(parent, text, w, h)
     local b = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate")
     b:SetSize(w, h or 22)
     b:SetText(text)
     return b
+end
+
+function UI.AddPreferenceCheckbox(parent, sibbling, preference_key, description, callback)
+    local checkButton = CreateFrame("CheckButton", nil, parent, "UICheckButtonTemplate")
+    checkButton:SetPoint("TOPLEFT", sibbling, "BOTTOMLEFT", 0, -ns.UI_SIZES.BOX_GAP + ns.UI_SIZES.BOX_PAD)
+    checkButton:SetScript("OnClick", callback)
+    checkButton:SetScript("OnShow", function(self)
+        self:SetChecked(ns.Preferences.Get(preference_key))
+    end)
+    checkButton:SetScript("OnHide", function(self)
+        self:UnlockHighlight()
+    end)
+    local text = checkButton:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    text:SetText(description)
+    text:SetPoint("LEFT", checkButton, "RIGHT", 5, 2)
+    text:SetScript("OnMouseUp", function()
+        checkButton:Click()
+    end)
+    text:SetScript("OnEnter", function()
+        checkButton:LockHighlight()
+    end)
+    text:SetScript("OnLeave", function()
+        checkButton:UnlockHighlight()
+    end)
+    return checkButton
 end
 
 local function AddLabel(parent, text, x, y, font)
@@ -1333,6 +1358,9 @@ local function CreateEncounterFrame()
         self:StopMovingOrSizing()
         SaveEncPos()
     end)
+    if not ns.Preferences.Get(ns.Preferences.Options.SHOW_ENCOUNTER_FRAME_BORDER) then
+        encFrame:SetBackdropBorderColor(0, 0, 0, 0)
+    end
     RestoreEncPos()
     AddCloseButton(encFrame)
     encTitle = encFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -1356,6 +1384,15 @@ local function EncounterRow(i, child, width)
         encScroll.rows[i] = row
     end
     return row
+end
+
+function UI.UpdateEncounterFrameBorder()
+    if not encFrame then return end
+    if not ns.Preferences.Get(ns.Preferences.Options.SHOW_ENCOUNTER_FRAME_BORDER) then
+        encFrame:SetBackdropBorderColor(0, 0, 0, 0)
+    else
+        encFrame:SetBackdrop(BACKDROP)
+    end
 end
 
 function UI.ShowEncounter(raidName, bossName)
