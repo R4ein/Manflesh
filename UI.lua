@@ -1364,7 +1364,7 @@ local function RestoreEncPos()
 end
 
 local function CreateEncounterFrame()
-    if _G[ns.FRAMES.ENCOUNTER] then return end
+    if encFrame then return end
     encFrame = CreatePanel(ns.FRAMES.ENCOUNTER, 300, 210, nil, true)
     encFrame:SetScript("OnDragStop", function(self)
         self:StopMovingOrSizing()
@@ -1434,6 +1434,17 @@ function UI.ShowEncounter(raidName, bossName)
     child:SetHeight(math.max(count * ROW_HEIGHT, 1))
 
     encFrame:Show()
+end
+
+function UI.ToggleEncounterBackdrop()
+    if encFrame then
+        if ns.Preferences.Get(ns.Preferences.Options.SHOW_ENCOUNTER_FRAME_BORDER) then
+            encFrame:SetBackdrop(nil)
+            encFrame:SetBackdrop(BACKDROP)
+        else
+            encFrame:SetBackdropBorderColor(0, 0, 0, 0)
+        end
+    end
 end
 
 function UI.HideEncounter()
