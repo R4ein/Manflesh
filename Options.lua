@@ -27,6 +27,7 @@ function ns.InitializeOptionsMenu()
     local testEncounterButton = ns.UI.AddButton(optionsContainer, "Test Encounter Frame", 160, nil)
     testEncounterButton:SetPoint("TOPLEFT", versionText, "BOTTOMLEFT", 0, -22)
     testEncounterButton:SetScript("OnClick", function()
+        -- Pick a random raid + boss from the list of raids/bosses
         local raid = math.random(#ns.RAIDS)
         local raidName = ns.RAIDS[raid].name
         local boss = math.random(#ns.RAIDS[raid].bosses)
@@ -47,7 +48,12 @@ function ns.InitializeOptionsMenu()
         "Show border for the encounter window.",
         function(self)
             ns.Preferences.Set(ns.Preferences.Options.SHOW_ENCOUNTER_FRAME_BORDER, self:GetChecked())
-            ns.UI.UpdateEncounterFrameBorder()
+            
+            -- Remove the encounter frame because we can't turn on the border if the border was disabled before
+            ns.UI.RemoveFrame(ns.FRAMES.ENCOUNTER)
+
+            -- Force a zone update so a new encounter frame will be created/opened
+            EventRegistry:TriggerEvent("FORCE_ZONE_UPDATE")
         end
     )
     -- Register the container canvas to an options category

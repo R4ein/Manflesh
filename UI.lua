@@ -140,6 +140,18 @@ local function CreatePanel(name, w, h, parent, noEsc)
     return f
 end
 
+-- Check for the specified frame and remove all events and parent references
+--  so the garbage collector can deallocate it
+function UI.RemoveFrame(name)
+    local frame = _G[name]
+    if frame then
+        frame:UnregisterAllEvents()
+        frame:SetParent(nil)
+        frame:Hide()
+        _G[name] = nil
+    end
+end
+
 local function AddTitle(frame, text)
     local fs = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     fs:SetPoint("TOP", 0, -16)
@@ -635,7 +647,7 @@ UI.RefreshMain = RefreshMain
 
 local function CreateMainFrame()
     if mainFrame then return end
-    mainFrame = CreatePanel("ManfleshFrame", 492, 720)
+    mainFrame = CreatePanel(ns.FRAMES.MAIN, 492, 720)
     mainFrame:SetPoint("CENTER")
     AddTitle(mainFrame, "Manflesh")
     AddCloseButton(mainFrame)
@@ -644,7 +656,7 @@ local function CreateMainFrame()
     rosterDD = MakeDropdown("ManfleshRosterDD", mainFrame, 250)
     rosterDD:SetPoint("TOPLEFT", 4, -52)
 
-    local delBtn = AddButton(mainFrame, "Remove", 80, 20)
+    local delBtn = UI.AddButton(mainFrame, "Remove", 80, 20)
     delBtn:SetPoint("TOPRIGHT", -16, -52)
     delBtn:SetScript("OnClick", function()
         local r = ns.GetActiveRoster()
@@ -657,15 +669,15 @@ local function CreateMainFrame()
     infoText:SetJustifyH("LEFT")
     infoText:SetJustifyV("TOP")
 
-    local importBtn = AddButton(mainFrame, "Import JSON", 130)
+    local importBtn = UI.AddButton(mainFrame, "Import JSON", 130)
     importBtn:SetPoint("TOPLEFT", 16, -150)
     importBtn:SetScript("OnClick", function() UI.ShowImport() end)
 
-    local byIdBtn = AddButton(mainFrame, "Get by ID", 120)
+    local byIdBtn = UI.AddButton(mainFrame, "Get by ID", 120)
     byIdBtn:SetPoint("LEFT", importBtn, "RIGHT", 8, 0)
     byIdBtn:SetScript("OnClick", function() UI.ShowManualImport() end)
 
-    local syncBtn = AddButton(mainFrame, "Scan", 70)
+    local syncBtn = UI.AddButton(mainFrame, "Scan", 70)
     syncBtn:SetPoint("LEFT", byIdBtn, "RIGHT", 8, 0)
     syncBtn:SetScript("OnClick", function()
         ns.Comm.SendHello()
@@ -673,15 +685,15 @@ local function CreateMainFrame()
         ns.Print("Scanning guild/group for shared rosters...")
     end)
 
-    exportBtn = AddButton(mainFrame, "Export to Sheets", 150)
+    exportBtn = UI.AddButton(mainFrame, "Export to Sheets", 150)
     exportBtn:SetPoint("TOPLEFT", 16, -178)
     exportBtn:SetScript("OnClick", function() UI.ShowExport() end)
 
-    rhExportBtn = AddButton(mainFrame, "Export to Raid-Helper", 160)
+    rhExportBtn = UI.AddButton(mainFrame, "Export to Raid-Helper", 160)
     rhExportBtn:SetPoint("LEFT", exportBtn, "RIGHT", 8, 0)
     rhExportBtn:SetScript("OnClick", function() UI.ShowRaidPlanExport() end)
 
-    lockBtn = AddButton(mainFrame, "Mark Complete", 120)
+    lockBtn = UI.AddButton(mainFrame, "Mark Complete", 120)
     lockBtn:SetPoint("LEFT", rhExportBtn, "RIGHT", 8, 0)
     lockBtn:SetScript("OnClick", function() UI.ToggleLock() end)
 
@@ -689,7 +701,7 @@ local function CreateMainFrame()
     statusText:SetPoint("TOPRIGHT", -20, -156)
 
     AddLabel(mainFrame, "Click to edit \194\183 drag to swap slots or bench \194\183 hover to preview:", 18, -208)
-    rosterScroll = CreateScrollList("ManfleshRosterScroll", mainFrame, 440, 474)
+    rosterScroll = CreateScrollList(ns.FRAMES.ROSTER_SCROLL, mainFrame, 440, 474)
     rosterScroll:SetPoint("TOPLEFT", 18, -226)
 
     local child = rosterScroll.child
@@ -745,13 +757,13 @@ end
 
 local function CreateImportFrame()
     if importFrame then return end
-    importFrame = CreatePanel("ManfleshImportFrame", 460, 420)
+    importFrame = CreatePanel(ns.FRAMES.IMPORT, 460, 420)
     importFrame:SetPoint("CENTER")
     AddTitle(importFrame, "Import Raid-Helper JSON")
     AddCloseButton(importFrame)
     AddLabel(importFrame, "Open the event JSON on raid-helper.xyz, copy it, paste below, then Import.", 20, -42)
 
-    local scroll = CreateFrame("ScrollFrame", "ManfleshImportScroll", importFrame, "UIPanelScrollFrameTemplate")
+    local scroll = CreateFrame("ScrollFrame", ns.FRAMES.IMPORT_SCROLL, importFrame, "UIPanelScrollFrameTemplate")
     scroll:SetPoint("TOPLEFT", 18, -62)
     scroll:SetSize(404, 300)
 
@@ -772,7 +784,7 @@ local function CreateImportFrame()
     importEdit:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
     scroll:SetScrollChild(importEdit)
 
-    local importBtn = AddButton(importFrame, "Import", 120)
+    local importBtn = UI.AddButton(importFrame, "Import", 120)
     importBtn:SetPoint("BOTTOMRIGHT", -20, 16)
     importBtn:SetScript("OnClick", function()
         local roster, err = ns.ParseRosterJSON(importEdit:GetText())
@@ -785,7 +797,7 @@ local function CreateImportFrame()
         end
     end)
 
-    local clearBtn = AddButton(importFrame, "Clear", 100)
+    local clearBtn = UI.AddButton(importFrame, "Clear", 100)
     clearBtn:SetPoint("BOTTOMLEFT", 20, 16)
     clearBtn:SetScript("OnClick", function() importEdit:SetText("") importEdit:SetFocus() end)
 end
@@ -802,20 +814,20 @@ local manualFrame, manualEdit
 
 local function CreateManualFrame()
     if manualFrame then return end
-    manualFrame = CreatePanel("ManfleshManualFrame", 420, 170)
+    manualFrame = CreatePanel(ns.FRAMES.MANUAL, 420, 170)
     manualFrame:SetPoint("CENTER")
     AddTitle(manualFrame, "Get roster by ID")
     AddCloseButton(manualFrame)
     AddLabel(manualFrame, "Enter a roster ID. If someone in your guild, party, or raid is\nonline, has it, and your name is in it, it will be sent to you.", 22, -44)
 
-    manualEdit = CreateFrame("EditBox", "ManfleshManualEdit", manualFrame, "InputBoxTemplate")
+    manualEdit = CreateFrame("EditBox", ns.FRAMES.MANUAL_EDIT, manualFrame, "InputBoxTemplate")
     manualEdit:SetSize(360, 24)
     manualEdit:SetPoint("TOPLEFT", 30, -88)
     manualEdit:SetAutoFocus(true)
     manualEdit:SetMaxLetters(64)
     manualEdit:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
 
-    local reqBtn = AddButton(manualFrame, "Request", 120)
+    local reqBtn = UI.AddButton(manualFrame, "Request", 120)
     reqBtn:SetPoint("BOTTOM", 0, 18)
     reqBtn:SetScript("OnClick", function()
         local id = manualEdit:GetText():gsub("^%s+", ""):gsub("%s+$", "")
@@ -839,13 +851,13 @@ local exportFrame, exportEdit
 
 local function CreateExportFrame()
     if exportFrame then return end
-    exportFrame = CreatePanel("ManfleshExportFrame", 560, 440)
+    exportFrame = CreatePanel(ns.FRAMES.EXPORT, 560, 440)
     exportFrame:SetPoint("CENTER")
     AddTitle(exportFrame, "Export to Google Sheets")
     AddCloseButton(exportFrame)
     AddLabel(exportFrame, "Press Ctrl+C to copy, then paste into Google Sheets (it splits into columns).", 20, -42)
 
-    local scroll = CreateFrame("ScrollFrame", "ManfleshExportScroll", exportFrame, "UIPanelScrollFrameTemplate")
+    local scroll = CreateFrame("ScrollFrame", ns.FRAMES.EXPORT_SCROLL, exportFrame, "UIPanelScrollFrameTemplate")
     scroll:SetPoint("TOPLEFT", 18, -62)
     scroll:SetSize(504, 320)
 
@@ -868,7 +880,7 @@ local function CreateExportFrame()
     exportEdit:SetScript("OnChar", function(self) self:SetText(self.payload or "") self:HighlightText() end)
     scroll:SetScrollChild(exportEdit)
 
-    local selectBtn = AddButton(exportFrame, "Select all", 120)
+    local selectBtn = UI.AddButton(exportFrame, "Select all", 120)
     selectBtn:SetPoint("BOTTOMRIGHT", -20, 16)
     selectBtn:SetScript("OnClick", function() exportEdit:SetFocus() exportEdit:HighlightText() end)
 end
@@ -903,7 +915,7 @@ end
 
 local function CreateRaidPlanFrame()
     if rhFrame then return end
-    rhFrame = CreatePanel("ManfleshRaidPlanFrame", 640, 470)
+    rhFrame = CreatePanel(ns.FRAMES.PLAN, 640, 470)
     rhFrame:SetPoint("CENTER")
     AddTitle(rhFrame, "Export to Raid-Helper (raidplan)")
     AddCloseButton(rhFrame)
@@ -914,7 +926,7 @@ local function CreateRaidPlanFrame()
     rhHint:SetJustifyH("LEFT")
     rhHint:SetText("Replace |cffffd100<YOUR_RAIDHELPER_API_KEY>|r with your server's API key (Discord: /apikey), then run the command. It PATCHes the event's raidplan. Assignments are not included.")
 
-    local scroll = CreateFrame("ScrollFrame", "ManfleshRaidPlanScroll", rhFrame, "UIPanelScrollFrameTemplate")
+    local scroll = CreateFrame("ScrollFrame", ns.FRAMES.PLAN_SCROLL, rhFrame, "UIPanelScrollFrameTemplate")
     scroll:SetPoint("TOPLEFT", 18, -78)
     scroll:SetSize(584, 320)
 
@@ -936,11 +948,11 @@ local function CreateRaidPlanFrame()
     rhEdit:SetScript("OnChar", function(self) self:SetText(self.payload or "") self:HighlightText() end)
     scroll:SetScrollChild(rhEdit)
 
-    local selectBtn = AddButton(rhFrame, "Select all", 110)
+    local selectBtn = UI.AddButton(rhFrame, "Select all", 110)
     selectBtn:SetPoint("BOTTOMRIGHT", -20, 16)
     selectBtn:SetScript("OnClick", function() rhEdit:SetFocus() rhEdit:HighlightText() end)
 
-    local toggleBtn = AddButton(rhFrame, "Show raw JSON", 150)
+    local toggleBtn = UI.AddButton(rhFrame, "Show raw JSON", 150)
     toggleBtn:SetPoint("BOTTOMLEFT", 20, 16)
     toggleBtn:SetScript("OnClick", function()
         rhCurl = not rhCurl
@@ -1151,7 +1163,7 @@ end
 
 local function CreatePlayerFrame()
     if playerFrame then return end
-    playerFrame = CreatePanel("ManfleshPlayerFrame", 440, 610)
+    playerFrame = CreatePanel(ns.FRAMES.PLAYER, 440, 610)
     playerFrame:SetPoint("CENTER", 230, 0)
     AddCloseButton(playerFrame)
 
@@ -1172,13 +1184,13 @@ local function CreatePlayerFrame()
     pSpecDD:SetPoint("TOPLEFT", 8, -116)
 
     renameLabel = AddLabel(playerFrame, "Rename player", 24, -150)
-    pRenameEdit = CreateFrame("EditBox", "ManfleshRenameEdit", playerFrame, "InputBoxTemplate")
+    pRenameEdit = CreateFrame("EditBox", ns.FRAMES.RENAME_EDIT, playerFrame, "InputBoxTemplate")
     pRenameEdit:SetSize(220, 22)
     pRenameEdit:SetPoint("TOPLEFT", 30, -164)
     pRenameEdit:SetAutoFocus(false)
     pRenameEdit:SetMaxLetters(48)
     pRenameEdit:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
-    pRenameBtn = AddButton(playerFrame, "Rename", 90)
+    pRenameBtn = UI.AddButton(playerFrame, "Rename", 90)
     pRenameBtn:SetPoint("LEFT", pRenameEdit, "RIGHT", 8, 0)
     pRenameBtn:SetScript("OnClick", function()
         local roster = ctxRoster()
@@ -1211,7 +1223,7 @@ local function CreatePlayerFrame()
     pMarkDD:SetPoint("TOPLEFT", 228, -406)
     pTargetDD = MakeDropdown("ManfleshTargetDD", playerFrame, 150)
     pTargetDD:SetPoint("TOPLEFT", 228, -406)
-    pTextEdit = CreateFrame("EditBox", "ManfleshTextEdit", playerFrame, "InputBoxTemplate")
+    pTextEdit = CreateFrame("EditBox", ns.FRAMES.TEXT_EDIT, playerFrame, "InputBoxTemplate")
     pTextEdit:SetSize(170, 20)
     pTextEdit:SetPoint("TOPLEFT", 250, -410)
     pTextEdit:SetAutoFocus(false)
@@ -1224,7 +1236,7 @@ local function CreatePlayerFrame()
     pTargetDD2 = MakeDropdown("ManfleshTargetDD2", playerFrame, 150)
     pTargetDD2:SetPoint("TOPLEFT", 228, -444)
 
-    pAddBtn = AddButton(playerFrame, "Add Assignment", 160)
+    pAddBtn = UI.AddButton(playerFrame, "Add Assignment", 160)
     pAddBtn:SetPoint("TOPLEFT", 30, -486)
     pAddBtn:SetScript("OnClick", function()
         local roster = ctxRoster()
@@ -1247,7 +1259,7 @@ local function CreatePlayerFrame()
         RefreshMain()
     end)
 
-    pEditorBtn = AddButton(playerFrame, "Grant Editor", 160)
+    pEditorBtn = UI.AddButton(playerFrame, "Grant Editor", 160)
     pEditorBtn:SetPoint("BOTTOM", 0, 18)
     pEditorBtn:SetScript("OnClick", function()
         local roster = ctxRoster()
@@ -1352,8 +1364,8 @@ local function RestoreEncPos()
 end
 
 local function CreateEncounterFrame()
-    if encFrame then return end
-    encFrame = CreatePanel("ManfleshEncounterFrame", 300, 210, nil, true)
+    if _G[ns.FRAMES.ENCOUNTER] then return end
+    encFrame = CreatePanel(ns.FRAMES.ENCOUNTER, 300, 210, nil, true)
     encFrame:SetScript("OnDragStop", function(self)
         self:StopMovingOrSizing()
         SaveEncPos()
@@ -1367,7 +1379,7 @@ local function CreateEncounterFrame()
     encTitle:SetPoint("TOP", 0, -14)
     encTitle:SetWidth(260)
     encTitle:SetJustifyH("CENTER")
-    encScroll = CreateScrollList("ManfleshEncounterScroll", encFrame, 256, 150)
+    encScroll = CreateScrollList(ns.FRAMES.ENCOUNTER_SCROLL, encFrame, 256, 150)
     encScroll:SetPoint("TOPLEFT", 16, -40)
 end
 
@@ -1384,15 +1396,6 @@ local function EncounterRow(i, child, width)
         encScroll.rows[i] = row
     end
     return row
-end
-
-function UI.UpdateEncounterFrameBorder()
-    if not encFrame then return end
-    if not ns.Preferences.Get(ns.Preferences.Options.SHOW_ENCOUNTER_FRAME_BORDER) then
-        encFrame:SetBackdropBorderColor(0, 0, 0, 0)
-    else
-        encFrame:SetBackdrop(BACKDROP)
-    end
 end
 
 function UI.ShowEncounter(raidName, bossName)

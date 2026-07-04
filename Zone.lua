@@ -77,3 +77,4 @@ f:SetScript("OnEvent", function(_, event, ...)
         showForCurrentState()
     end
 end)
+EventRegistry:RegisterCallback("FORCE_ZONE_UPDATE", onZoneChanged)
