@@ -16,14 +16,12 @@ ns.Preferences.Defaults = {
 function ns.Preferences.Reset(name)
     -- Populate our backing store with default values
     if not name then
-        ns.Print("Reset() -> Not Name")
         ManfleshPreferences = {}
         for option, value in pairs(ns.Preferences.Defaults) do
             ManfleshPreferences[option] = value
         end
     -- Populate the provided variable with its default value
     else
-        ns.Print("Reset() -> Name = " .. name)
         local newValue = ns.Preferences.Defaults[name]
         if type(newValue) == "table" then
             newValue = CopyTable(newValue)
@@ -34,7 +32,6 @@ end
 
 -- Initialize a datastructure that can be persisted to disk
 function ns.Preferences.InitializeData()
-    ns.Print("Initialize Data")
     -- Initialize the backing store
     if ManfleshPreferences == nil then
         ns.Preferences.Reset()
