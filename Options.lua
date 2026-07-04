@@ -48,7 +48,7 @@ function ns.InitializeOptionsMenu()
         "Show border for the encounter window.",
         function(self)
             ns.Preferences.Set(ns.Preferences.Options.SHOW_ENCOUNTER_FRAME_BORDER, self:GetChecked())
-            ns.UI.ToggleEncounterBackdrop()
+            ns.UI.ToggleBorder(ns.FRAMES.ENCOUNTER, self:GetChecked())
         end
     )
     -- Register the container canvas to an options category

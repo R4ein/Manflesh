@@ -1438,13 +1438,17 @@ function UI.ShowEncounter(raidName, bossName)
     encFrame:Show()
 end
 
-function UI.ToggleEncounterBackdrop()
-    if encFrame then
-        if ns.Preferences.Get(ns.Preferences.Options.SHOW_ENCOUNTER_FRAME_BORDER) then
-            encFrame:SetBackdrop(nil)
-            encFrame:SetBackdrop(BACKDROP)
+function UI.ToggleBorder(frameId, enableBorder)
+    local frame = _G[frameId]
+    if frame then
+        local _, _, _, borderAlpha = frame:GetBackdropBorderColor()
+
+        -- Turn on the border if the enableBorder flag was explicitly set or toggle it on if it is currently hidden
+        if enableBorder or (enableBorder == nil and borderAlpha == 0) then
+            frame:SetBackdrop(nil)
+            frame:SetBackdrop(BACKDROP)
         else
-            encFrame:SetBackdropBorderColor(0, 0, 0, 0)
+            frame:SetBackdropBorderColor(0, 0, 0, 0)
         end
     end
 end
