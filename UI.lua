@@ -165,14 +165,15 @@ local function AddCloseButton(frame)
     return b
 end
 
-function UI.AddButton(parent, text, w, h)
+local function AddButton(parent, text, w, h)
     local b = CreateFrame("Button", nil, parent, "UIPanelButtonTemplate")
     b:SetSize(w, h or 22)
     b:SetText(text)
     return b
 end
+UI.AddButton = AddButton
 
-function UI.AddPreferenceCheckbox(parent, sibbling, preference_key, description, callback)
+local function AddPreferenceCheckbox(parent, sibbling, preference_key, description, callback)
     local checkButton = CreateFrame("CheckButton", nil, parent, "UICheckButtonTemplate")
     checkButton:SetPoint("TOPLEFT", sibbling, "BOTTOMLEFT", 0, -ns.UI_SIZES.BOX_GAP + ns.UI_SIZES.BOX_PAD)
     checkButton:SetScript("OnClick", callback)
@@ -196,6 +197,7 @@ function UI.AddPreferenceCheckbox(parent, sibbling, preference_key, description,
     end)
     return checkButton
 end
+UI.AddPreferenceCheckbox = AddPreferenceCheckbox
 
 local function AddLabel(parent, text, x, y, font)
     local fs = parent:CreateFontString(nil, "OVERLAY", font or "GameFontNormalSmall")
@@ -656,7 +658,7 @@ local function CreateMainFrame()
     rosterDD = MakeDropdown("ManfleshRosterDD", mainFrame, 250)
     rosterDD:SetPoint("TOPLEFT", 4, -52)
 
-    local delBtn = UI.AddButton(mainFrame, "Remove", 80, 20)
+    local delBtn = AddButton(mainFrame, "Remove", 80, 20)
     delBtn:SetPoint("TOPRIGHT", -16, -52)
     delBtn:SetScript("OnClick", function()
         local r = ns.GetActiveRoster()
@@ -669,15 +671,15 @@ local function CreateMainFrame()
     infoText:SetJustifyH("LEFT")
     infoText:SetJustifyV("TOP")
 
-    local importBtn = UI.AddButton(mainFrame, "Import JSON", 130)
+    local importBtn = AddButton(mainFrame, "Import JSON", 130)
     importBtn:SetPoint("TOPLEFT", 16, -150)
     importBtn:SetScript("OnClick", function() UI.ShowImport() end)
 
-    local byIdBtn = UI.AddButton(mainFrame, "Get by ID", 120)
+    local byIdBtn = AddButton(mainFrame, "Get by ID", 120)
     byIdBtn:SetPoint("LEFT", importBtn, "RIGHT", 8, 0)
     byIdBtn:SetScript("OnClick", function() UI.ShowManualImport() end)
 
-    local syncBtn = UI.AddButton(mainFrame, "Scan", 70)
+    local syncBtn = AddButton(mainFrame, "Scan", 70)
     syncBtn:SetPoint("LEFT", byIdBtn, "RIGHT", 8, 0)
     syncBtn:SetScript("OnClick", function()
         ns.Comm.SendHello()
@@ -685,15 +687,15 @@ local function CreateMainFrame()
         ns.Print("Scanning guild/group for shared rosters...")
     end)
 
-    exportBtn = UI.AddButton(mainFrame, "Export to Sheets", 150)
+    exportBtn = AddButton(mainFrame, "Export to Sheets", 150)
     exportBtn:SetPoint("TOPLEFT", 16, -178)
     exportBtn:SetScript("OnClick", function() UI.ShowExport() end)
 
-    rhExportBtn = UI.AddButton(mainFrame, "Export to Raid-Helper", 160)
+    rhExportBtn = AddButton(mainFrame, "Export to Raid-Helper", 160)
     rhExportBtn:SetPoint("LEFT", exportBtn, "RIGHT", 8, 0)
     rhExportBtn:SetScript("OnClick", function() UI.ShowRaidPlanExport() end)
 
-    lockBtn = UI.AddButton(mainFrame, "Mark Complete", 120)
+    lockBtn = AddButton(mainFrame, "Mark Complete", 120)
     lockBtn:SetPoint("LEFT", rhExportBtn, "RIGHT", 8, 0)
     lockBtn:SetScript("OnClick", function() UI.ToggleLock() end)
 
@@ -784,7 +786,7 @@ local function CreateImportFrame()
     importEdit:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
     scroll:SetScrollChild(importEdit)
 
-    local importBtn = UI.AddButton(importFrame, "Import", 120)
+    local importBtn = AddButton(importFrame, "Import", 120)
     importBtn:SetPoint("BOTTOMRIGHT", -20, 16)
     importBtn:SetScript("OnClick", function()
         local roster, err = ns.ParseRosterJSON(importEdit:GetText())
@@ -797,7 +799,7 @@ local function CreateImportFrame()
         end
     end)
 
-    local clearBtn = UI.AddButton(importFrame, "Clear", 100)
+    local clearBtn = AddButton(importFrame, "Clear", 100)
     clearBtn:SetPoint("BOTTOMLEFT", 20, 16)
     clearBtn:SetScript("OnClick", function() importEdit:SetText("") importEdit:SetFocus() end)
 end
@@ -827,7 +829,7 @@ local function CreateManualFrame()
     manualEdit:SetMaxLetters(64)
     manualEdit:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
 
-    local reqBtn = UI.AddButton(manualFrame, "Request", 120)
+    local reqBtn = AddButton(manualFrame, "Request", 120)
     reqBtn:SetPoint("BOTTOM", 0, 18)
     reqBtn:SetScript("OnClick", function()
         local id = manualEdit:GetText():gsub("^%s+", ""):gsub("%s+$", "")
@@ -880,7 +882,7 @@ local function CreateExportFrame()
     exportEdit:SetScript("OnChar", function(self) self:SetText(self.payload or "") self:HighlightText() end)
     scroll:SetScrollChild(exportEdit)
 
-    local selectBtn = UI.AddButton(exportFrame, "Select all", 120)
+    local selectBtn = AddButton(exportFrame, "Select all", 120)
     selectBtn:SetPoint("BOTTOMRIGHT", -20, 16)
     selectBtn:SetScript("OnClick", function() exportEdit:SetFocus() exportEdit:HighlightText() end)
 end
@@ -948,11 +950,11 @@ local function CreateRaidPlanFrame()
     rhEdit:SetScript("OnChar", function(self) self:SetText(self.payload or "") self:HighlightText() end)
     scroll:SetScrollChild(rhEdit)
 
-    local selectBtn = UI.AddButton(rhFrame, "Select all", 110)
+    local selectBtn = AddButton(rhFrame, "Select all", 110)
     selectBtn:SetPoint("BOTTOMRIGHT", -20, 16)
     selectBtn:SetScript("OnClick", function() rhEdit:SetFocus() rhEdit:HighlightText() end)
 
-    local toggleBtn = UI.AddButton(rhFrame, "Show raw JSON", 150)
+    local toggleBtn = AddButton(rhFrame, "Show raw JSON", 150)
     toggleBtn:SetPoint("BOTTOMLEFT", 20, 16)
     toggleBtn:SetScript("OnClick", function()
         rhCurl = not rhCurl
@@ -1190,7 +1192,7 @@ local function CreatePlayerFrame()
     pRenameEdit:SetAutoFocus(false)
     pRenameEdit:SetMaxLetters(48)
     pRenameEdit:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
-    pRenameBtn = UI.AddButton(playerFrame, "Rename", 90)
+    pRenameBtn = AddButton(playerFrame, "Rename", 90)
     pRenameBtn:SetPoint("LEFT", pRenameEdit, "RIGHT", 8, 0)
     pRenameBtn:SetScript("OnClick", function()
         local roster = ctxRoster()
@@ -1236,7 +1238,7 @@ local function CreatePlayerFrame()
     pTargetDD2 = MakeDropdown("ManfleshTargetDD2", playerFrame, 150)
     pTargetDD2:SetPoint("TOPLEFT", 228, -444)
 
-    pAddBtn = UI.AddButton(playerFrame, "Add Assignment", 160)
+    pAddBtn = AddButton(playerFrame, "Add Assignment", 160)
     pAddBtn:SetPoint("TOPLEFT", 30, -486)
     pAddBtn:SetScript("OnClick", function()
         local roster = ctxRoster()
@@ -1259,7 +1261,7 @@ local function CreatePlayerFrame()
         RefreshMain()
     end)
 
-    pEditorBtn = UI.AddButton(playerFrame, "Grant Editor", 160)
+    pEditorBtn = AddButton(playerFrame, "Grant Editor", 160)
     pEditorBtn:SetPoint("BOTTOM", 0, 18)
     pEditorBtn:SetScript("OnClick", function()
         local roster = ctxRoster()
