@@ -2,6 +2,7 @@ local _, ns = ...
 
 ns.ADDON = "Manflesh"
 ns.VERSION = "0.1.0"
+ns.BUILD = "18"
 
 -- addon-message channel prefix (also the SendAddonMessage / registered prefix)
 ns.PREFIX = "Manflesh"
@@ -24,4 +25,22 @@ ns.UI_SIZES = {
     VGAP = VGAP,
     BOX_H = BOX_H,
     GRID_H = 3 * BOX_H + 2 * VGAP,
+}
+
+ns.FRAMES = {
+    ENCOUNTER = "ManfleshEncounterFrame",
+    ENCOUNTER_SCROLL = "ManfleshEncounterScroll",
+    EXPORT = "ManfleshExportFrame",
+    EXPORT_SCROLL = "ManfleshExportScroll",
+    IMPORT = "ManfleshImportFrame",
+    IMPORT_SCROLL = "ManfleshImportScroll",
+    MAIN = "ManfleshFrame",
+    MANUAL = "ManfleshManualFrame",
+    MANUAL_EDIT = "ManfleshManualEdit",
+    PLAYER = "ManfleshPlayerFrame",
+    RAID_PLAN = "ManfleshRaidPlanFrame",
+    RAID_PLAN_SCROLL = "ManfleshRaidPlanScroll",
+    RENAME_EDIT = "ManfleshRenameEdit",
+    ROSTER_SCROLL = "ManfleshRosterScroll",
+    TEXT_EDIT = "ManfleshTextEdit"
 }

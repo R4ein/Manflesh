@@ -140,6 +140,18 @@ local function CreatePanel(name, w, h, parent, noEsc)
     return f
 end
 
+-- Check for the specified frame and remove all events and parent references
+--  so the garbage collector can deallocate it
+function UI.RemoveFrame(name)
+    local frame = _G[name]
+    if frame then
+        frame:UnregisterAllEvents()
+        frame:SetParent(nil)
+        frame:Hide()
+        _G[name] = nil
+    end
+end
+
 local function AddTitle(frame, text)
     local fs = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     fs:SetPoint("TOP", 0, -16)
@@ -159,6 +171,33 @@ local function AddButton(parent, text, w, h)
     b:SetText(text)
     return b
 end
+UI.AddButton = AddButton
+
+local function AddPreferenceCheckbox(parent, sibbling, preference_key, description, callback)
+    local checkButton = CreateFrame("CheckButton", nil, parent, "UICheckButtonTemplate")
+    checkButton:SetPoint("TOPLEFT", sibbling, "BOTTOMLEFT", 0, -ns.UI_SIZES.BOX_GAP + ns.UI_SIZES.BOX_PAD)
+    checkButton:SetScript("OnClick", callback)
+    checkButton:SetScript("OnShow", function(self)
+        self:SetChecked(ns.Preferences.Get(preference_key))
+    end)
+    checkButton:SetScript("OnHide", function(self)
+        self:UnlockHighlight()
+    end)
+    local text = checkButton:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+    text:SetText(description)
+    text:SetPoint("LEFT", checkButton, "RIGHT", 5, 2)
+    text:SetScript("OnMouseUp", function()
+        checkButton:Click()
+    end)
+    text:SetScript("OnEnter", function()
+        checkButton:LockHighlight()
+    end)
+    text:SetScript("OnLeave", function()
+        checkButton:UnlockHighlight()
+    end)
+    return checkButton
+end
+UI.AddPreferenceCheckbox = AddPreferenceCheckbox
 
 local function AddLabel(parent, text, x, y, font)
     local fs = parent:CreateFontString(nil, "OVERLAY", font or "GameFontNormalSmall")
@@ -610,7 +649,7 @@ UI.RefreshMain = RefreshMain
 
 local function CreateMainFrame()
     if mainFrame then return end
-    mainFrame = CreatePanel("ManfleshFrame", 492, 720)
+    mainFrame = CreatePanel(ns.FRAMES.MAIN, 492, 720)
     mainFrame:SetPoint("CENTER")
     AddTitle(mainFrame, "Manflesh")
     AddCloseButton(mainFrame)
@@ -664,7 +703,7 @@ local function CreateMainFrame()
     statusText:SetPoint("TOPRIGHT", -20, -156)
 
     AddLabel(mainFrame, "Click to edit \194\183 drag to swap slots or bench \194\183 hover to preview:", 18, -208)
-    rosterScroll = CreateScrollList("ManfleshRosterScroll", mainFrame, 440, 474)
+    rosterScroll = CreateScrollList(ns.FRAMES.ROSTER_SCROLL, mainFrame, 440, 474)
     rosterScroll:SetPoint("TOPLEFT", 18, -226)
 
     local child = rosterScroll.child
@@ -720,13 +759,13 @@ end
 
 local function CreateImportFrame()
     if importFrame then return end
-    importFrame = CreatePanel("ManfleshImportFrame", 460, 420)
+    importFrame = CreatePanel(ns.FRAMES.IMPORT, 460, 420)
     importFrame:SetPoint("CENTER")
     AddTitle(importFrame, "Import Raid-Helper JSON")
     AddCloseButton(importFrame)
     AddLabel(importFrame, "Open the event JSON on raid-helper.xyz, copy it, paste below, then Import.", 20, -42)
 
-    local scroll = CreateFrame("ScrollFrame", "ManfleshImportScroll", importFrame, "UIPanelScrollFrameTemplate")
+    local scroll = CreateFrame("ScrollFrame", ns.FRAMES.IMPORT_SCROLL, importFrame, "UIPanelScrollFrameTemplate")
     scroll:SetPoint("TOPLEFT", 18, -62)
     scroll:SetSize(404, 300)
 
@@ -777,13 +816,13 @@ local manualFrame, manualEdit
 
 local function CreateManualFrame()
     if manualFrame then return end
-    manualFrame = CreatePanel("ManfleshManualFrame", 420, 170)
+    manualFrame = CreatePanel(ns.FRAMES.MANUAL, 420, 170)
     manualFrame:SetPoint("CENTER")
     AddTitle(manualFrame, "Get roster by ID")
     AddCloseButton(manualFrame)
     AddLabel(manualFrame, "Enter a roster ID. If someone in your guild, party, or raid is\nonline, has it, and your name is in it, it will be sent to you.", 22, -44)
 
-    manualEdit = CreateFrame("EditBox", "ManfleshManualEdit", manualFrame, "InputBoxTemplate")
+    manualEdit = CreateFrame("EditBox", ns.FRAMES.MANUAL_EDIT, manualFrame, "InputBoxTemplate")
     manualEdit:SetSize(360, 24)
     manualEdit:SetPoint("TOPLEFT", 30, -88)
     manualEdit:SetAutoFocus(true)
@@ -814,13 +853,13 @@ local exportFrame, exportEdit
 
 local function CreateExportFrame()
     if exportFrame then return end
-    exportFrame = CreatePanel("ManfleshExportFrame", 560, 440)
+    exportFrame = CreatePanel(ns.FRAMES.EXPORT, 560, 440)
     exportFrame:SetPoint("CENTER")
     AddTitle(exportFrame, "Export to Google Sheets")
     AddCloseButton(exportFrame)
     AddLabel(exportFrame, "Press Ctrl+C to copy, then paste into Google Sheets (it splits into columns).", 20, -42)
 
-    local scroll = CreateFrame("ScrollFrame", "ManfleshExportScroll", exportFrame, "UIPanelScrollFrameTemplate")
+    local scroll = CreateFrame("ScrollFrame", ns.FRAMES.EXPORT_SCROLL, exportFrame, "UIPanelScrollFrameTemplate")
     scroll:SetPoint("TOPLEFT", 18, -62)
     scroll:SetSize(504, 320)
 
@@ -878,7 +917,7 @@ end
 
 local function CreateRaidPlanFrame()
     if rhFrame then return end
-    rhFrame = CreatePanel("ManfleshRaidPlanFrame", 640, 470)
+    rhFrame = CreatePanel(ns.FRAMES.PLAN, 640, 470)
     rhFrame:SetPoint("CENTER")
     AddTitle(rhFrame, "Export to Raid-Helper (raidplan)")
     AddCloseButton(rhFrame)
@@ -889,7 +928,7 @@ local function CreateRaidPlanFrame()
     rhHint:SetJustifyH("LEFT")
     rhHint:SetText("Replace |cffffd100<YOUR_RAIDHELPER_API_KEY>|r with your server's API key (Discord: /apikey), then run the command. It PATCHes the event's raidplan. Assignments are not included.")
 
-    local scroll = CreateFrame("ScrollFrame", "ManfleshRaidPlanScroll", rhFrame, "UIPanelScrollFrameTemplate")
+    local scroll = CreateFrame("ScrollFrame", ns.FRAMES.PLAN_SCROLL, rhFrame, "UIPanelScrollFrameTemplate")
     scroll:SetPoint("TOPLEFT", 18, -78)
     scroll:SetSize(584, 320)
 
@@ -1126,7 +1165,7 @@ end
 
 local function CreatePlayerFrame()
     if playerFrame then return end
-    playerFrame = CreatePanel("ManfleshPlayerFrame", 440, 610)
+    playerFrame = CreatePanel(ns.FRAMES.PLAYER, 440, 610)
     playerFrame:SetPoint("CENTER", 230, 0)
     AddCloseButton(playerFrame)
 
@@ -1147,7 +1186,7 @@ local function CreatePlayerFrame()
     pSpecDD:SetPoint("TOPLEFT", 8, -116)
 
     renameLabel = AddLabel(playerFrame, "Rename player", 24, -150)
-    pRenameEdit = CreateFrame("EditBox", "ManfleshRenameEdit", playerFrame, "InputBoxTemplate")
+    pRenameEdit = CreateFrame("EditBox", ns.FRAMES.RENAME_EDIT, playerFrame, "InputBoxTemplate")
     pRenameEdit:SetSize(220, 22)
     pRenameEdit:SetPoint("TOPLEFT", 30, -164)
     pRenameEdit:SetAutoFocus(false)
@@ -1186,7 +1225,7 @@ local function CreatePlayerFrame()
     pMarkDD:SetPoint("TOPLEFT", 228, -406)
     pTargetDD = MakeDropdown("ManfleshTargetDD", playerFrame, 150)
     pTargetDD:SetPoint("TOPLEFT", 228, -406)
-    pTextEdit = CreateFrame("EditBox", "ManfleshTextEdit", playerFrame, "InputBoxTemplate")
+    pTextEdit = CreateFrame("EditBox", ns.FRAMES.TEXT_EDIT, playerFrame, "InputBoxTemplate")
     pTextEdit:SetSize(170, 20)
     pTextEdit:SetPoint("TOPLEFT", 250, -410)
     pTextEdit:SetAutoFocus(false)
@@ -1328,18 +1367,21 @@ end
 
 local function CreateEncounterFrame()
     if encFrame then return end
-    encFrame = CreatePanel("ManfleshEncounterFrame", 300, 210, nil, true)
+    encFrame = CreatePanel(ns.FRAMES.ENCOUNTER, 300, 210, nil, true)
     encFrame:SetScript("OnDragStop", function(self)
         self:StopMovingOrSizing()
         SaveEncPos()
     end)
+    if not ns.Preferences.Get(ns.Preferences.Options.SHOW_ENCOUNTER_FRAME_BORDER) then
+        encFrame:SetBackdropBorderColor(0, 0, 0, 0)
+    end
     RestoreEncPos()
     AddCloseButton(encFrame)
     encTitle = encFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
     encTitle:SetPoint("TOP", 0, -14)
     encTitle:SetWidth(260)
     encTitle:SetJustifyH("CENTER")
-    encScroll = CreateScrollList("ManfleshEncounterScroll", encFrame, 256, 150)
+    encScroll = CreateScrollList(ns.FRAMES.ENCOUNTER_SCROLL, encFrame, 256, 150)
     encScroll:SetPoint("TOPLEFT", 16, -40)
 end
 
@@ -1394,6 +1436,21 @@ function UI.ShowEncounter(raidName, bossName)
     child:SetHeight(math.max(count * ROW_HEIGHT, 1))
 
     encFrame:Show()
+end
+
+function UI.ToggleBorder(frameId, enableBorder)
+    local frame = _G[frameId]
+    if frame then
+        local _, _, _, borderAlpha = frame:GetBackdropBorderColor()
+
+        -- Turn on the border if the enableBorder flag was explicitly set or toggle it on if it is currently hidden
+        if enableBorder or (enableBorder == nil and borderAlpha == 0) then
+            frame:SetBackdrop(nil)
+            frame:SetBackdrop(BACKDROP)
+        else
+            frame:SetBackdropBorderColor(0, 0, 0, 0)
+        end
+    end
 end
 
 function UI.HideEncounter()
